@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>SocketIO Client</title>
+   <script src="/socket.io/socket.io.js"></script>
+   <link rel="stylesheet" href="ind.css">
+</head>
+
+<body style="background: #aca9ac;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #faf3f3, #4c502c);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #89fd6c, #2C3E50); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  ">
+
+
+   <div id="main1" style="display: none;  ">
+      
+
+      <div id="div1"
+         style="border: 5px rgb(23, 172, 152) solid;overflow: scroll; width: 1500px;  margin-right: 450px; height: 600px; "></div>
+      
+      <div id="boxe" style="margin-left: 700px; margin-top: 20px;">
+
+      </div>
+      <input type="file" id="input" style="display: none; margin-left: 700px;">
+   </div>
+   <!-- Client Code -->
+   <script type="text/javascript">
+      // Get WebSocket
+      var socket = io();
+      var room = "test";
+      socket.emit("join", room);
+
+      function setUsername() {
+         socket.emit('setUsername', document.getElementById('name').value);
+      };
+      var user;
+      socket.on('userExists', function (data) {
+         document.getElementById('error-container').innerHTML = data;
+      });
+      socket.on('userSet', function (data) {
+         document.body.style.backgroundColor = "neon";
+         document.body.style.backgroundImage = "linear-gradient(315deg, neon 10%, #380036 74%)";
+        
+         user = data.username;
+         var x = document.getElementById('main');
+         x.style.display = "none";
+         document.getElementById('main1').style.display = "block";
+
+         document.getElementById('boxe').innerHTML = '  <button type = "button" name = "button" onclick = "sendMessage()">Send</button><br><br>\
+         <button id="btn2" onclick="karbe()">SEND IMAGE </button><br><br>';
+
+         
+      });
+      function karbe() {
+         var x = document.getElementById('input');
+         x.style.display = "block";
+      }
+      
+      document.getElementById("input").addEventListener("change", function (event) {
+
+         
+         // Prepeare file reader
+         var output = document.createElement('img');
+         var file = event.target.files[0];
+         var fileReader = new FileReader();
+         fileReader.onloadend = function (event) {
+            // Send an image event to the socket
+            var image = event.target.result
+            output.src = image;
+            output.style.width = "200";
+            output.style.width = "300";
+            var out = document.createElement('div');
+            out.appendChild(output);
+            document.getElementById('div1').appendChild(out);
+            document.getElementById('input').style.display = 'none';
+            socket.emit("image", image);
+         };
+         // Read file
+         fileReader.readAsDataURL(file);
+      })
+
+      //}
+      socket.on("image", function (image) {
+         var output = document.createElement('img');
+         output.src = image;
+         output.style.marginLeft = "250px"
+         output.style.width = "700";
+         output.style.width = "800";
+         var out = document.createElement('div');
+         out.appendChild(output);
+         document.getElementById('div1').appendChild(out);
+      });
+   </script>
+   <div id="main"
+      style="width: 1500px;text-align: center;  height: 730px; border: 4px solid white; margin-right: 500px; border-radius: 25px; margin-top: 50px;">
+      <h1 style="font-family: emoji; font-size: 60px;">IMAGICON <br></h1>
+      <div id="error-container"></div>
+      <input id="name" type="text" name="name" value="" placeholder="Your name please!"
+         style="margin-top: 200px; font-size: 40px; border-radius: 15px; width: 600px; height: 50px;">
+      <br><br>
+      <button type="button" id="btn1" style="padding: 15px; font-size: 18px; border-radius: 12px; margin-top: 40px;"
+         name="button" onclick="setUsername()  ">
+         Enter the room
+      </button>
+   </div>
+</body>
+</html>
